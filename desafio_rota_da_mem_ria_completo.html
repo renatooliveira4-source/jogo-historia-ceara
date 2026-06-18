@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desafio Rota da Memória: História, Resistência e Mini-Jogos do Ceará</title>
+    <!-- Tailwind CSS para um design moderno, responsivo e de alta fidelidade visual -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para ícones da interface -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Arvo (Estilo Rústico de Cordel) e Inter (Legibilidade) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2c1a04 0%, #0f0700 100%);
+        }
+        .font-cordel {
+            font-family: 'Arvo', serif;
+        }
+        /* Borda estilizada que remete a carimbos de xilogravura rústicos */
+        .woodcut-border {
+            border: 4px solid #f59e0b;
+            box-shadow: 0px 0px 0px 4px #0f0700, inset 0px 0px 0px 2px #0f0700;
+        }
+        /* Fundo com textura discreta de papel antigo/sertão */
+        .cordel-pattern {
+            background-color: #1a0f02;
+            background-image: radial-gradient(#2d1c08 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        /* Pulsação do botão principal de início */
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+            50% { transform: scale(1.03); box-shadow: 0 0 20px 10px rgba(245, 158, 11, 0); }
+        }
+        .btn-pulse {
+            animation: pulse-gold 2s infinite;
+        }
+        /* Efeito de tremor para impactos físicos nos mini-jogos */
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 0); }
+            20%, 40%, 60%, 80% { transform: translate(3px, 0); }
+        }
+        .shake-effect {
+            animation: shake 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-amber-50 flex flex-col justify-between cordel-pattern select-none">
+
+    <!-- CABEÇALHO DO JOGO -->
+    <header class="w-full max-w-4xl mx-auto p-4 flex justify-between items-center border-b-2 border-amber-800/40 sticky top-0 bg-amber-950/20 backdrop-blur-md z-40">
+        <div class="flex items-center gap-2">
+            <span class="text-3xl md:text-4xl">🌵</span>
+            <div>
+                <h1 class="font-cordel text-base md:text-lg font-bold text-amber-400 leading-tight">ROTA DA MEMÓRIA</h1>
+                <p class="text-[10px] md:text-xs text-amber-200/70">Ceará: História, Resistência e Gamificação</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Botão de Compartilhar / Projetar -->
+            <button onclick="openShareModal()" class="p-2 bg-amber-600 hover:bg-amber-500 text-amber-950 rounded-lg transition text-xs font-bold flex items-center gap-1.5 shadow-md">
+                <i class="fa-solid fa-share-nodes"></i>
+                <span class="hidden sm:inline">Projetar / Compartilhar</span>
+            </button>
+            <!-- Controle de Áudio -->
+            <button onclick="toggleAudio()" id="btn-sound" class="p-2 bg-amber-950/80 border border-amber-600 rounded-lg hover:bg-amber-900 transition text-xs font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-volume-high"></i> <span class="hidden sm:inline">Som On</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="w-full max-w-4xl mx-auto px-4 py-6 flex-grow flex flex-col justify-center relative">
+        
+        <!-- TELA DE INÍCIO -->
+        <div id="screen-start" class="space-y-6 text-center">
+            <div class="max-w-xl mx-auto bg-amber-950/40 p-6 md:p-8 rounded-2xl woodcut-border space-y-6">
+                <span class="text-6xl md:text-7xl block animate-bounce">☀️</span>
+                <h2 class="font-cordel text-3xl md:text-4xl font-bold text-amber-300 uppercase tracking-wide leading-tight">
+                    Desafio Cearensidade
+                </h2>
+                <p class="text-sm md:text-base text-amber-100/90 leading-relaxed font-light">
+                    Participe desta expedição pelo nosso Ceará! Responda às perguntas do bimestre, vença os mini-jogos práticos de agilidade nos intervalos e conquiste o pódio do sertão!
+                </p>
+
+                <!-- INPUT DE NOME -->
+                <div class="space-y-2 text-left">
+                    <label class="block text-xs font-bold tracking-wider text-amber-400 uppercase">Seu Nome ou Nome do Grupo:</label>
+                    <input type="text" id="player-name" placeholder="Ex: Maria / Grupo 3" 
+                           class="w-full px-4 py-3 rounded-xl bg-amber-950/90 border-2 border-amber-600 text-amber-100 placeholder-amber-700/80 focus:outline-none focus:ring-2 focus:ring-amber-400 text-lg font-medium">
+                </div>
+
+                <!-- ESCOLHA DO AVATAR -->
+                <div class="space-y-3 text-left">
+                    <label class="block text-xs font-bold tracking-wider text-amber-400 uppercase">Escolha seu Personagem:</label>
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-3" id="avatar-container">
+                        <!-- Gerado dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <button onclick="startGame()" class="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-amber-950 font-bold font-cordel text-xl rounded-xl shadow-lg hover:from-amber-400 hover:to-orange-500 transition duration-150 transform hover:-translate-y-1 btn-pulse">
+                    INICIAR JORNADA! 🔥
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA DE JOGO ATIVO (PERGUNTAS) -->
+        <div id="screen-game" class="hidden space-y-6">
+            <!-- HUD Superior -->
+            <div class="flex justify-between items-center bg-amber-950/50 p-3 rounded-xl border border-amber-800/40">
+                <div class="flex items-center gap-3">
+                    <div id="game-avatar" class="text-3xl p-1.5 bg-amber-900/40 rounded-lg">🌵</div>
+                    <div>
+                        <div id="game-player-name" class="font-bold text-amber-300 text-sm md:text-base">Jogador</div>
+                        <div class="text-[10px] md:text-xs text-amber-200/70" id="hud-streak">Multiplicador: x1 🔥</div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[10px] md:text-xs text-amber-400 font-bold uppercase">Pontuação</div>
+                    <div id="hud-score" class="font-cordel text-xl md:text-2xl text-amber-300 font-bold">0000</div>
+                </div>
+            </div>
+
+            <!-- Progresso e Cronômetro -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-xs text-amber-300/80">
+                    <span id="question-number">Questão 1 de 5</span>
+                    <span id="timer-text" class="font-bold text-orange-400 flex items-center gap-1"><i class="fa-solid fa-clock"></i> 60s</span>
+                </div>
+                <div class="w-full bg-amber-950/80 rounded-full h-3 p-0.5 border border-amber-800">
+                    <div id="progress-bar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <!-- Bloco de Fonte Histórica -->
+            <div class="bg-amber-950/60 p-4 md:p-6 rounded-2xl border-l-4 border-amber-500 relative overflow-hidden">
+                <div class="absolute -right-4 -bottom-4 text-7xl opacity-5 select-none pointer-events-none">📜</div>
+                <span class="text-xs font-bold tracking-widest text-amber-400 block mb-2 uppercase flex items-center gap-1.5">
+                    <i class="fa-solid fa-book-open"></i> Fonte Historiográfica / Texto de Apoio:
+                </span>
+                <p id="question-source" class="text-xs md:text-sm text-amber-100/90 leading-relaxed italic font-light">
+                    Texto de apoio...
+                </p>
+            </div>
+
+            <!-- Enunciado e Opções -->
+            <div class="space-y-4">
+                <h3 id="question-title" class="font-cordel text-base md:text-lg font-bold text-amber-300 leading-snug">
+                    Enunciado da pergunta...
+                </h3>
+
+                <div class="grid grid-cols-1 gap-3" id="options-container">
+                    <!-- Botões de opções gerados dinamicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE MINI-JOGOS INTERMEDIÁRIOS -->
+        <div id="screen-minigame" class="hidden space-y-4">
+            <div class="max-w-xl mx-auto bg-amber-950/80 p-6 rounded-2xl woodcut-border text-center space-y-4">
+                <div class="flex justify-between items-center border-b border-amber-800/40 pb-2">
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
+                        <i class="fa-solid fa-bolt text-amber-500"></i> Desafio Relâmpago do Sertão
+                    </span>
+                    <span id="minigame-timer" class="text-sm font-bold text-red-400 font-mono bg-red-950/50 px-3 py-1 rounded-full">15s</span>
+                </div>
+                
+                <h3 id="minigame-title" class="font-cordel text-xl font-bold text-amber-300">Carregando Desafio...</h3>
+                <p id="minigame-desc" class="text-xs text-amber-100/80 leading-relaxed max-w-md mx-auto">Instruções rápidas para a tarefa.</p>
+
+                <!-- ÁREA DINÂMICA DO MINI-JOGO -->
+                <div id="minigame-stage" class="w-full bg-amber-950/50 border border-amber-800/80 rounded-xl relative overflow-hidden flex items-center justify-center min-h-[260px] md:min-h-[290px]">
+                    <!-- Inserção dinâmica via JS dependendo do minigame -->
+                </div>
+
+                <div id="minigame-feedback" class="hidden text-sm font-bold p-3 rounded-lg text-center">
+                    Resultado da Tarefa!
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE FEEDBACK PEDAGÓGICO (INTERMEDIÁRIO) -->
+        <div id="screen-feedback" class="hidden space-y-6">
+            <div class="max-w-xl mx-auto bg-amber-950/50 p-6 md:p-8 rounded-2xl woodcut-border text-center space-y-6">
+                <!-- Ícone dinâmico (sucesso/erro) -->
+                <div id="feedback-icon" class="text-7xl animate-bounce">🎉</div>
+                
+                <h2 id="feedback-headline" class="font-cordel text-2xl md:text-3xl font-bold uppercase tracking-wide">
+                    Resposta Correta!
+                </h2>
+
+                <div id="feedback-stats" class="text-sm text-amber-300/90 font-medium">
+                    Você ganhou +100 pontos nesta rodada!
+                </div>
+
+                <!-- A caixa do professor (Dica Pedagógica) -->
+                <div class="bg-amber-900/20 p-4 md:p-5 rounded-xl border border-amber-700/60 text-left space-y-3 relative">
+                    <div class="flex items-center gap-3 border-b border-amber-800/60 pb-2">
+                        <span class="text-3xl">👨‍🏫</span>
+                        <div>
+                            <h4 class="font-cordel text-sm font-bold text-amber-400">Comentário do Professor</h4>
+                            <p class="text-xs text-amber-300/70">A visão crítica do nosso território</p>
+                        </div>
+                    </div>
+                    <p id="feedback-explanation" class="text-xs md:text-sm text-amber-100/90 leading-relaxed">
+                        Explicação histórica contextualizada...
+                    </p>
+                </div>
+
+                <button id="btn-next-step" onclick="advanceStep()" class="w-full py-4 bg-amber-500 text-amber-950 font-bold font-cordel text-lg rounded-xl shadow-md hover:bg-amber-400 transition">
+                    AVANÇAR NA HISTÓRIA 🚀
+                </button>
+            </div>
+        </div>
+
+        <!-- TELA FINAL (PÓDIO E REVISÃO) -->
+        <div id="screen-end" class="hidden space-y-6">
+            <div class="max-w-xl mx-auto bg-amber-950/50 p-6 md:p-8 rounded-2xl woodcut-border text-center space-y-6">
+                <span class="text-7xl block animate-pulse" id="end-medal-icon">🏆</span>
+                
+                <h2 class="font-cordel text-3xl font-bold text-amber-300 uppercase tracking-wide">
+                    Jornada Concluída!
+                </h2>
+
+                <div>
+                    <p class="text-sm text-amber-200/80">Parabéns pelo esforço,</p>
+                    <h3 id="end-player-name" class="font-cordel text-2xl font-bold text-amber-400 text-amber-300">Nome do Jogador</h3>
+                </div>
+
+                <!-- Placar Final -->
+                <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto bg-amber-950/80 p-4 rounded-xl border border-amber-800">
+                    <div>
+                        <div class="text-[10px] text-amber-400 uppercase font-bold">Pontuação Final</div>
+                        <div id="end-score" class="font-cordel text-2xl text-amber-300 font-bold">0</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-amber-400 uppercase font-bold">Classificação</div>
+                        <div id="end-badge" class="font-cordel text-[10px] md:text-xs text-orange-400 font-bold flex justify-center items-center h-full">Sertanejo Resiliente</div>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="restartGame()" class="flex-1 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-amber-950 font-bold font-cordel text-lg rounded-xl hover:from-amber-400 hover:to-orange-500 transition shadow-md">
+                        Jogar Novamente 🔄
+                    </button>
+                    <button onclick="toggleSummary()" class="flex-1 py-4 bg-amber-900/60 border-2 border-amber-600 text-amber-200 font-bold font-cordel text-lg rounded-xl hover:bg-amber-900/80 transition">
+                        Revisar Matéria 📖
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumo das Questões (Estudo Pós-Jogo) -->
+            <div id="study-summary" class="hidden max-w-2xl mx-auto bg-amber-950/30 p-6 rounded-2xl border border-amber-800 space-y-6">
+                <h3 class="font-cordel text-xl font-bold text-amber-300 border-b border-amber-800 pb-2 flex items-center gap-2">
+                    📋 Gabarito de Revisão do Desafio
+                </h3>
+                <div class="space-y-4" id="summary-list">
+                    <!-- Itens gerados via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL INTERATIVO DE COMPARTILHAMENTO DA SALA DE AULA -->
+        <div id="modal-share" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-amber-950 border-4 border-amber-500 rounded-2xl max-w-md w-full p-6 text-center space-y-5 relative">
+                <button onclick="closeShareModal()" class="absolute top-3 right-3 text-amber-400 hover:text-amber-200 text-xl focus:outline-none">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
+                
+                <h3 class="font-cordel text-xl font-bold text-amber-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-chalkboard-user"></i> Central de Compartilhamento
+                </h3>
+                
+                <p class="text-xs text-amber-100/90 leading-relaxed font-light">
+                    Compartilhe o arquivo do jogo com a turma via WhatsApp ou use o gerador de QR Code abaixo para projetar na lousa digital!
+                </p>
+
+                <!-- Baixar arquivo HTML offline direto -->
+                <div class="bg-amber-900/30 border border-amber-700 p-4 rounded-xl space-y-2 text-left">
+                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">📲 Compartilhar por Arquivo</span>
+                    <p class="text-[11px] text-amber-200 leading-tight">Baixe este jogo como arquivo único e envie direto pelo WhatsApp ou e-mail dos alunos. Funciona 100% offline!</p>
+                    <button onclick="downloadGameFile()" class="w-full mt-1.5 py-2.5 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-circle-down"></i> Baixar Arquivo do Jogo (.html)
+                    </button>
+                </div>
+
+                <!-- Gerador de QR Code para Projeção -->
+                <div class="bg-amber-900/30 border border-amber-700 p-4 rounded-xl space-y-3 text-left">
+                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">📺 Projetar na Lousa (QR Code)</span>
+                    <p class="text-[11px] text-amber-200 leading-tight">Hospede o arquivo em algum lugar ou digite a URL onde o jogo está online para gerar o QR Code dos alunos escanearem.</p>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="qr-input-url" placeholder="https://meu-jogo.github.io" 
+                               class="flex-grow px-3 py-1.5 rounded bg-amber-950 border border-amber-600 text-xs text-amber-100 placeholder-amber-800 focus:outline-none">
+                        <button onclick="generateQRCode()" class="px-3 bg-amber-600 hover:bg-amber-500 text-amber-950 font-bold text-xs rounded transition flex items-center gap-1">
+                            Gerar
+                        </button>
+                    </div>
+
+                    <div id="qr-display-container" class="hidden flex flex-col items-center justify-center bg-white p-3 rounded-lg mt-3 transition-all duration-300">
+                        <img id="qr-image" src="" alt="QR Code do Jogo" class="w-36 h-36 border border-slate-200">
+                        <span class="text-[9px] text-slate-800 mt-1 font-bold">Escaneie o QR Code com o Celular! 📱</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="w-full max-w-4xl mx-auto p-4 text-center text-[10px] md:text-xs text-amber-400/50 border-t border-amber-800/20">
+        Desenvolvido em Fortaleza/CE para fomento da aprendizagem lúdica e protagonismo juvenil. Orgulho do nosso sertão! 🌵☀️
+    </footer>
+
+    <!-- LÓGICA DO JOGO (JAVASCRIPT) -->
+    <script>
+        // Banco de Questões Inéditas baseado nos temas estruturantes do bimestre
+        const questions = [
+            {
+                id: 1,
+                source: "Em Juazeiro, a política misturava-se com a religiosidade popular de um modo muito peculiar. O Padre Cícero Romão Batista exercia um duplo papel: para as massas de romeiros, era o padrinho milagreiro e protetor; para os chefes políticos do estado, era uma peça-chave no tabuleiro eleitoral. Quando a 'Política das Salvações' do governo federal ameaçou tirar o poder das tradicionais famílias do interior cearense em 1914, os fiéis pegaram em armas não apenas por política, mas para defender seu líder espiritual.",
+                question: "O envolvimento do Padre Cícero na política da República Velha ficou conhecido como 'Coronelismo de Batina' porque o líder religioso:",
+                options: [
+                    { key: "a", text: "defendia a separação radical entre as decisões da Igreja e as disputas partidárias do estado." },
+                    { key: "b", text: "utilizava seu enorme prestígio espiritual sobre os devotos para negociar alianças e direcionar votos a favor das elites agrárias.", isCorrect: true },
+                    { key: "c", text: "liderou uma revolução camponesa de caráter socialista para extinguir o latifúndio no Cariri." },
+                    { key: "d", text: "apoiava o fim do voto de cabresto, incentivando a independência eleitoral dos pequenos agricultores." }
+                ],
+                explanation: "O 'Coronelismo de Batina' sintetiza o poder híbrido do Padre Cícero. Ele se aliou aos fazendeiros (coronéis) para garantir a ordem política em troca de proteção para seus romeiros e manutenção do prestígio de Juazeiro do Norte."
+            },
+            {
+                id: 2,
+                source: "O cangaço e o messianismo caminhavam lado a lado nas veredas do sertão. Diante da prepotência dos grandes proprietários de terras, que mandavam e desmandavam através de seus capangas, e de um Estado que só aparecia para cobrar impostos ou reprimir, o camponês cearense via-se encurralado. Entrar para um bando armado ou seguir um beato em uma comunidade santa eram caminhos diferentes que partiam do mesmo desespero.",
+                question: "De acordo com a análise histórica apresentada, os fenômenos do Cangaço e do Messianismo no Nordeste e no Ceará na primeira metade do século XX tinham sua origem comum na:",
+                options: [
+                    { key: "a", text: "modernização tecnológica das indústrias da capital, que gerou desemprego em massa no interior." },
+                    { key: "b", text: "influência cultural de ideologias políticas vindas diretamente dos centros urbanos europeus." },
+                    { key: "c", text: "estrutura social opressora do sertão, marcada pela miséria, pela concentração de terras e pela ausência de justiça social.", isCorrect: true },
+                    { key: "d", text: "eficiente fiscalização do governo federal, que coibia os abusos cometidos pelos chefes políticos locais." }
+                ],
+                explanation: "A miséria, o monopólio das terras nas mãos dos coronéis e a ausência completa de assistência ou justiça oficial do Estado empurravam os sertanejos para a rebeldia armada (cangaço) ou para as promessas de salvação comunitária (messianismo)."
+            },
+            {
+                id: 3,
+                source: "Para os governantes e a imprensa de Fortaleza nas secas de 1915 e 1932, a visão de milhares de retirantes famintos marchando pelas ruas da capital era inaceitável. Temia-se o crime, o contágio de doenças e, acima de tudo, a quebra da imagem de 'cidade moderna e civilizada' que a elite local tanto tentava construir. A solução foi retê-los em acampamentos vigiados por guardas nas proximidades das ferrovias, longe dos olhos do centro urbano.",
+                question: "A política de criação dos chamados 'Campos de Concentração' ou 'Currais da Fome' pelo governo do Estado do Ceará refletia uma mentalidade das elites da época baseada no(a):",
+                options: [
+                    { key: "a", text: "desejo de integrar economicamente os camponeses no mercado de trabalho industrial de Fortaleza." },
+                    { key: "b", text: "higienismo e segregação social, visando isolar a pobreza sertaneja para preservar a estética urbana da capital.", isCorrect: true },
+                    { key: "c", text: "planejamento democrático de reforma agrária, distribuindo lotes de terra estruturados para os migrantes." },
+                    { key: "d", text: "solidariedade humanitária, garantindo atendimento médico de alta qualidade e moradia digna para as famílias." }
+                ],
+                explanation: "Os 'Campos de Concentração' foram criados sob uma perspectiva higienista e segregadora. A elite fortalezense tentava afastar a miséria do sertão para projetar a imagem de uma Fortaleza higienizada, moderna e civilizada."
+            },
+            {
+                id: 4,
+                source: "A seca no Ceará sempre foi um fenômeno natural, mas a fome e a sede que dela decorrem são frutos de escolhas políticas. O conceito de 'Indústria da Seca' critica exatamente a engrenagem que transformava a escassez de água em um negócio lucrativo para poucos, prolongando o sofrimento dos mais necessitados.",
+                question: "Historicamente, a engrenagem que caracteriza o conceito de 'Indústria da Seca' no Nordeste brasileiro consistia no(a):",
+                options: [
+                    { key: "a", text: "investimento pesado em tecnologias de ponta para bombear água do mar para o sertão." },
+                    { key: "b", text: "uso de verbas públicas de socorro emergencial para beneficiar grandes latifundiários e fortalecer o poder de políticos tradicionais.", isCorrect: true },
+                    { key: "c", text: "criação de frentes de trabalho cooperativas geridas exclusivamente por pequenos produtores rurais independentes." },
+                    { key: "d", text: "distribuição perfeitamente igualitária de mantimentos e carros-pipa baseada nas necessidades reais da população." }
+                ],
+                explanation: "Na 'Indústria da Seca', a calamidade natural era aproveitada politicamente. O dinheiro público federal de socorro era usado para construir açudes em fazendas privadas ou trocado por apoio político pelas elites regionais."
+            },
+            {
+                id: 5,
+                source: "A modernização do Ceará em meados do século XX, simbolizada pela inauguração do Porto do Mucuripe e pela expansão industrial, conviveu com o fortalecimento de narrativas que buscavam definir o que é 'ser cearense'. Essa identidade, longe de ser estática, fincou suas raízes nas práticas culturais que celebravam a resistência do homem do sertão, expressa no som da sanfona, na poesia popular e na culinária local.",
+                question: "O processo de construção da 'cearensidade' (identidade cultural cearense), conforme o texto, articula-se com a valorização de elementos do patrimônio imaterial. São exemplos legítimos e genuínos desse patrimônio:",
+                options: [
+                    { key: "a", text: "os desfiles coreografados das escolas de samba cariocas no litoral de Fortaleza." },
+                    { key: "b", text: "a fabricação de vinhos finos europeus nas áreas áridas do sertão central." },
+                    { key: "c", text: "a literatura de cordel, o ritmo do forró tradicional e a confecção de rendas de bilros.", isCorrect: true },
+                    { key: "d", text: "a produção mecânica de tapeçarias de lã importada nas comunidades serranas." }
+                ],
+                explanation: "O forró, o cordel e as rendas de bilros são heranças riquíssimas transmitidas de geração em geração. Elas simbolizam nossa cearensidade porque se nutrem do cotidiano, do trabalho e da resistência do sertanejo e do litorâneo."
+            }
+        ];
+
+        const avatars = [
+            { icon: "⛪", label: "Padim Ciço" },
+            { icon: "🤠", label: "Cangaceiro" },
+            { icon: "🧵", label: "Rendeira" },
+            { icon: "⛵", label: "Jangadeiro" },
+            { icon: "☀️", label: "Retirante" },
+            { icon: "📖", label: "Cordelista" }
+        ];
+
+        let gameState = {
+            playerName: "Sertanejo(a)",
+            selectedAvatar: "🌵",
+            currentQuestionIndex: 0,
+            score: 0,
+            streak: 1,
+            answersLog: [],
+            audioEnabled: true,
+            timer: 60,
+            timerInterval: null,
+            miniGameInterval: null,
+            currentMiniGameScore: 0
+        };
+
+        // Sintetizador Web Audio API para efeitos sonoros vintage nativos (100% offline!)
+        class WebSynth {
+            constructor() { this.audioCtx = null; }
+            init() { if (!this.audioCtx) { this.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } }
+            play(freq, type, duration, ramp = true) {
+                if (!gameState.audioEnabled) return;
+                this.init();
+                try {
+                    const now = this.audioCtx.currentTime;
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, now);
+                    if (ramp) { osc.frequency.linearRampToValueAtTime(freq / 2, now + duration); }
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+                    osc.start(now);
+                    osc.stop(now + duration);
+                } catch (e) { console.log("Áudio bloqueado pelo navegador."); }
+            }
+            playCorrect() { this.play(523.25, "sine", 0.3); this.play(659.25, "sine", 0.4); }
+            playWrong() { this.play(180, "sawtooth", 0.5); }
+            playClick() { this.play(600, "triangle", 0.08, false); }
+            playBreak() { this.play(120, "triangle", 0.15, true); }
+            playWater() { this.play(900, "sine", 0.1, false); }
+        }
+
+        const synth = new WebSynth();
+
+        window.onload = function() { renderAvatarSelection(); };
+
+        function renderAvatarSelection() {
+            const container = document.getElementById("avatar-container");
+            container.innerHTML = "";
+            avatars.forEach((av, i) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = `p-2.5 rounded-xl border-2 border-amber-800 bg-amber-950/40 text-center hover:bg-amber-900/60 transition-all ${i === 1 ? 'ring-2 ring-amber-400 border-amber-400' : ''}`;
+                btn.onclick = () => selectAvatar(btn, av.icon);
+                btn.innerHTML = `
+                    <span class="text-3xl block">${av.icon}</span>
+                    <span class="text-[10px] text-amber-200 mt-1 block leading-tight font-medium">${av.label}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectAvatar(element, icon) {
+            synth.playClick();
+            document.querySelectorAll("#avatar-container button").forEach(btn => {
+                btn.classList.remove("ring-2", "ring-amber-400", "border-amber-400");
+            });
+            element.classList.add("ring-2", "ring-amber-400", "border-amber-400");
+            gameState.selectedAvatar = icon;
+        }
+
+        function toggleAudio() {
+            gameState.audioEnabled = !gameState.audioEnabled;
+            const btn = document.getElementById("btn-sound");
+            if (gameState.audioEnabled) {
+                btn.innerHTML = "<i class='fa-solid fa-volume-high'></i> Som On";
+                btn.classList.remove("bg-red-950", "border-red-600");
+                btn.classList.add("bg-amber-950/80", "border-amber-600");
+                synth.playClick();
+            } else {
+                btn.innerHTML = "<i class='fa-solid fa-volume-xmark'></i> Som Off";
+                btn.classList.remove("bg-amber-950/80", "border-amber-600");
+                btn.classList.add("bg-red-950", "border-red-600");
+            }
+        }
+
+        function switchScreen(screenId) {
+            const screens = ["screen-start", "screen-game", "screen-minigame", "screen-feedback", "screen-end"];
+            screens.forEach(id => document.getElementById(id).classList.add("hidden"));
+            document.getElementById(screenId).classList.remove("hidden");
+        }
+
+        function startGame() {
+            synth.playClick();
+            const inputName = document.getElementById("player-name").value.trim();
+            if (inputName !== "") { gameState.playerName = inputName; }
+            gameState.currentQuestionIndex = 0;
+            gameState.score = 0;
+            gameState.streak = 1;
+            gameState.answersLog = [];
+            document.getElementById("game-avatar").innerText = gameState.selectedAvatar;
+            document.getElementById("game-player-name").innerText = gameState.playerName;
+            switchScreen("screen-game");
+            loadQuestion();
+        }
+
+        function startTimer() {
+            clearInterval(gameState.timerInterval);
+            gameState.timer = 60;
+            const timerText = document.getElementById("timer-text");
+            timerText.innerHTML = `<i class="fa-solid fa-clock"></i> ${gameState.timer}s`;
+            timerText.className = "font-bold text-orange-400 flex items-center gap-1";
+            gameState.timerInterval = setInterval(() => {
+                gameState.timer--;
+                timerText.innerHTML = `<i class="fa-solid fa-clock"></i> ${gameState.timer}s`;
+                if (gameState.timer <= 15) { timerText.className = "font-bold text-red-500 animate-pulse flex items-center gap-1"; }
+                if (gameState.timer <= 0) { clearInterval(gameState.timerInterval); handleAnswer(null); }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            startTimer();
+            const q = questions[gameState.currentQuestionIndex];
+            document.getElementById("question-number").innerText = `Questão ${gameState.currentQuestionIndex + 1} de ${questions.length}`;
+            document.getElementById("progress-bar").style.width = `${((gameState.currentQuestionIndex + 1) / questions.length) * 100}%`;
+            document.getElementById("question-source").innerText = q.source;
+            document.getElementById("question-title").innerText = q.question;
+            const container = document.getElementById("options-container");
+            container.innerHTML = "";
+            q.options.forEach((opt) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.onclick = () => handleAnswer(opt);
+                button.className = "w-full text-left p-4 rounded-xl bg-amber-950/40 border-2 border-amber-900 hover:border-amber-500 hover:bg-amber-950/80 transition-all duration-150 flex items-start gap-3 hover:-translate-y-0.5 group focus:outline-none";
+                button.innerHTML = `
+                    <span class="font-cordel text-amber-400 font-bold bg-amber-950 border border-amber-700 px-2.5 py-0.5 rounded group-hover:bg-amber-500 group-hover:text-amber-950 transition-colors uppercase">${opt.key}</span>
+                    <span class="text-xs md:text-sm text-amber-100 flex-1 leading-snug font-medium">${opt.text}</span>
+                `;
+                container.appendChild(button);
+            });
+        }
+
+        function handleAnswer(selectedOption) {
+            clearInterval(gameState.timerInterval);
+            const currentQ = questions[gameState.currentQuestionIndex];
+            const isCorrect = selectedOption && selectedOption.isCorrect;
+
+            gameState.answersLog.push({
+                questionId: currentQ.id,
+                questionTitle: currentQ.question,
+                selectedKey: selectedOption ? selectedOption.key : "tempo esgotado",
+                isCorrect: isCorrect,
+                correctKey: currentQ.options.find(o => o.isCorrect).key,
+                explanation: currentQ.explanation
+            });
+
+            const headline = document.getElementById("feedback-headline");
+            const icon = document.getElementById("feedback-icon");
+            const stats = document.getElementById("feedback-stats");
+            const exp = document.getElementById("feedback-explanation");
+
+            if (isCorrect) {
+                synth.playCorrect();
+                icon.innerText = "🎉";
+                headline.innerText = "Resposta Correta!";
+                headline.className = "font-cordel text-2xl md:text-3xl font-bold uppercase tracking-wide text-green-400";
+                const pointsGained = 100 * gameState.streak;
+                gameState.score += pointsGained;
+                stats.innerText = `Você ganhou +${pointsGained} pontos! (Multiplicador atual: x${gameState.streak})`;
+                gameState.streak++;
+            } else {
+                synth.playWrong();
+                icon.innerText = "😢";
+                headline.innerText = selectedOption ? "Resposta Incorreta!" : "Tempo Esgotado!";
+                headline.className = "font-cordel text-2xl md:text-3xl font-bold uppercase tracking-wide text-red-400";
+                stats.innerText = `A resposta certa era a alternativa [${currentQ.options.find(o => o.isCorrect).key.toUpperCase()}].`;
+                gameState.streak = 1;
+            }
+
+            exp.innerText = currentQ.explanation;
+            document.getElementById("hud-score").innerText = String(gameState.score).padStart(4, "0");
+            document.getElementById("hud-streak").innerText = `Multiplicador: x${gameState.streak} 🔥`;
+
+            const btnNext = document.getElementById("btn-next-step");
+            if (gameState.currentQuestionIndex < questions.length - 1) {
+                btnNext.innerHTML = "JOGAR MINI-DESAFIO DA RODADA ⚡";
+            } else {
+                btnNext.innerHTML = "VER RESULTADO FINAL 🏁";
+            }
+
+            switchScreen("screen-feedback");
+        }
+
+        function advanceStep() {
+            synth.playClick();
+            if (gameState.currentQuestionIndex < questions.length - 1) {
+                startMiniGame(gameState.currentQuestionIndex + 1);
+            } else {
+                finishGame();
+            }
+        }
+
+        function startMiniGame(id) {
+            switchScreen("screen-minigame");
+            const stage = document.getElementById("minigame-stage");
+            const timerLabel = document.getElementById("minigame-timer");
+            const title = document.getElementById("minigame-title");
+            const desc = document.getElementById("minigame-desc");
+            const feedback = document.getElementById("minigame-feedback");
+            feedback.className = "hidden text-sm font-bold p-3 rounded-lg text-center";
+
+            gameState.currentMiniGameScore = 0;
+            let secondsLeft = 12;
+            timerLabel.innerText = `${secondsLeft}s`;
+
+            clearInterval(gameState.miniGameInterval);
+
+            if (id === 1) {
+                // MINI GAME 1: CHUVA NO SERTÃO (Toque nas Nuvens)
+                title.innerText = "⛈️ Chuva no Sertão!";
+                desc.innerText = "Toque rápido nas nuvens azuis de chuva para molhar o sertão! Desvie do sol escaldante para não secar!";
+                stage.innerHTML = `
+                    <div class="absolute inset-0 flex flex-col justify-between p-4 bg-amber-950/30">
+                        <div class="w-full bg-amber-900/60 rounded-full h-4 p-0.5 border border-amber-700">
+                            <div id="rain-bar" class="bg-blue-400 h-3 rounded-full transition-all duration-100" style="width: 0%"></div>
+                        </div>
+                        <div class="text-xs text-amber-200">Meta: Alcançar 100% de umidade na terra!</div>
+                        <div id="rain-interactive-zone" class="w-full h-40 relative"></div>
+                    </div>
+                `;
+                
+                const zone = document.getElementById("rain-interactive-zone");
+                const bar = document.getElementById("rain-bar");
+                let humidity = 0;
+
+                function spawnRainElement() {
+                    if (secondsLeft <= 0) return;
+                    const el = document.createElement("button");
+                    const isCloud = Math.random() > 0.35;
+                    el.className = "absolute p-2.5 text-3xl transition-all duration-100 transform active:scale-90 focus:outline-none select-none";
+                    el.innerText = isCloud ? "☁️" : "☀️";
+                    el.style.left = `${Math.random() * 80 + 5}%`;
+                    el.style.top = `${Math.random() * 60 + 5}%`;
+                    
+                    el.onclick = () => {
+                        if (isCloud) {
+                            synth.playWater();
+                            humidity = Math.min(100, humidity + 10);
+                            bar.style.width = `${humidity}%`;
+                            el.remove();
+                        } else {
+                            synth.playWrong();
+                            humidity = Math.max(0, humidity - 15);
+                            bar.style.width = `${humidity}%`;
+                            el.remove();
+                        }
+                    };
+                    zone.appendChild(el);
+                    setTimeout(() => { if (el) el.remove(); }, 1200);
+                }
+
+                for(let i=0; i<3; i++) spawnRainElement();
+                const spawnInterval = setInterval(spawnRainElement, 350);
+
+                gameState.miniGameInterval = setInterval(() => {
+                    secondsLeft--;
+                    timerLabel.innerText = `${secondsLeft}s`;
+                    if (secondsLeft <= 0) {
+                        clearInterval(gameState.miniGameInterval);
+                        clearInterval(spawnInterval);
+                        const bonus = humidity >= 100 ? 200 : Math.round(humidity * 1.5);
+                        gameState.score += bonus;
+                        endMiniGame(true, `Excelente! Você acumulou ${humidity}% de umidade e faturou +${bonus} pontos de bônus! 🌾🌱`);
+                    }
+                }, 1000);
+
+            } else if (id === 2) {
+                // MINI GAME 2: FUJA DAS VOLANTES (Jogo de desviar estilo Arcade)
+                title.innerText = "🤠 Desvie das Volantes!";
+                desc.innerText = "Controle o cangaceiro esquerda/direita e evite as patrulhas das polícias volantes!";
+                stage.innerHTML = `
+                    <div class="relative w-full h-60 flex flex-col items-center justify-center p-2">
+                        <canvas id="dodge-canvas" width="300" height="150" class="border border-amber-800 bg-amber-950/60 rounded-lg max-w-full"></canvas>
+                        <div class="flex gap-4 mt-2 w-full justify-center px-4 max-w-xs">
+                            <button id="btn-left" class="flex-1 py-2.5 bg-amber-900 border border-amber-700 hover:bg-amber-800 rounded-lg active:bg-amber-700 text-lg select-none"><i class="fa-solid fa-caret-left"></i> Esquerda</button>
+                            <button id="btn-right" class="flex-1 py-2.5 bg-amber-900 border border-amber-700 hover:bg-amber-800 rounded-lg active:bg-amber-700 text-lg select-none">Direita <i class="fa-solid fa-caret-right"></i></button>
+                        </div>
+                    </div>
+                `;
+
+                const canvas = document.getElementById("dodge-canvas");
+                const ctx = canvas.getContext("2d");
+                let playerX = 135;
+                const playerY = 120;
+                const playerSize = 25;
+                let obstacles = [];
+                let dodgeCount = 0;
+                let activeKeys = { left: false, right: false };
+
+                // Suporte para Teclado (computador)
+                const keyboardHandler = (e) => {
+                    if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") activeKeys.left = e.type === "keydown";
+                    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") activeKeys.right = e.type === "keydown";
+                };
+                window.addEventListener("keydown", keyboardHandler);
+                window.addEventListener("keyup", keyboardHandler);
+
+                // Controles mobiles (Toque)
+                const setupTouch = (idBtn, keyProp) => {
+                    const el = document.getElementById(idBtn);
+                    el.addEventListener("mousedown", () => activeKeys[keyProp] = true);
+                    el.addEventListener("mouseup", () => activeKeys[keyProp] = false);
+                    el.addEventListener("touchstart", (e) => { e.preventDefault(); activeKeys[keyProp] = true; });
+                    el.addEventListener("touchend", (e) => { e.preventDefault(); activeKeys[keyProp] = false; });
+                };
+                setupTouch("btn-left", "left");
+                setupTouch("btn-right", "right");
+
+                let animId;
+                function loop() {
+                    if (secondsLeft <= 0) {
+                        window.removeEventListener("keydown", keyboardHandler);
+                        window.removeEventListener("keyup", keyboardHandler);
+                        return;
+                    }
+                    if (activeKeys.left) playerX = Math.max(0, playerX - 5);
+                    if (activeKeys.right) playerX = Math.min(canvas.width - playerSize, playerX + 5);
+
+                    if (Math.random() < 0.08) {
+                        obstacles.push({
+                            x: Math.random() * (canvas.width - 20),
+                            y: 0,
+                            size: 15,
+                            speed: 3 + Math.random() * 3
+                        });
+                    }
+
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = "#2d1c08";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    ctx.font = "20px Arial";
+                    ctx.fillText("🤠", playerX, playerY + 15);
+
+                    for (let i = obstacles.length - 1; i >= 0; i--) {
+                        let obs = obstacles[i];
+                        obs.y += obs.speed;
+                        ctx.fillText("⭐", obs.x, obs.y + 10);
+
+                        if (obs.x < playerX + playerSize &&
+                            obs.x + obs.size > playerX &&
+                            obs.y < playerY + playerSize &&
+                            obs.y + obs.size > playerY) {
+                            synth.playWrong();
+                            dodgeCount = Math.max(0, dodgeCount - 1);
+                            obstacles.splice(i, 1);
+                        } else if (obs.y > canvas.height) {
+                            dodgeCount++;
+                            synth.playClick();
+                            obstacles.splice(i, 1);
+                        }
+                    }
+                    animId = requestAnimationFrame(loop);
+                }
+                loop();
+
+                gameState.miniGameInterval = setInterval(() => {
+                    secondsLeft--;
+                    timerLabel.innerText = `${secondsLeft}s`;
+                    if (secondsLeft <= 0) {
+                        clearInterval(gameState.miniGameInterval);
+                        cancelAnimationFrame(animId);
+                        const bonus = dodgeCount * 10;
+                        gameState.score += bonus;
+                        endMiniGame(true, `Arretado! Você evitou a captura pelas patrulhas volantes e faturou +${bonus} pontos de bônus! 🌵🤠`);
+                    }
+                }, 1000);
+
+            } else if (id === 3) {
+                // MINI GAME 3: QUEBRE O MURO (Clicker Frenético)
+                title.innerText = "🧱 Quebre os Muros!";
+                desc.innerText = "Toque freneticamente no muro do 'Curral da Fome' para derrubá-lo e garantir a liberdade dos sertanejos!";
+                stage.innerHTML = `
+                    <div class="relative w-full h-44 flex flex-col items-center justify-around">
+                        <div class="w-full bg-amber-900/60 rounded-full h-4 p-0.5 border border-amber-700 max-w-xs">
+                            <div id="wall-hp-bar" class="bg-red-500 h-3 rounded-full transition-all duration-700" style="width: 100%"></div>
+                        </div>
+                        <button id="btn-wall" class="text-7xl transition duration-75 active:scale-95 focus:outline-none transform hover:scale-105 select-none">🧱</button>
+                        <div id="clicks-left" class="text-xs text-amber-200 font-bold">Restam 22 golpes!</div>
+                    </div>
+                `;
+
+                const btnWall = document.getElementById("btn-wall");
+                const hpBar = document.getElementById("wall-hp-bar");
+                const clickText = document.getElementById("clicks-left");
+                let clicksNeeded = 22;
+
+                btnWall.onclick = () => {
+                    if (clicksNeeded <= 0) return;
+                    clicksNeeded--;
+                    synth.playBreak();
+                    
+                    btnWall.classList.add("shake-effect");
+                    setTimeout(() => btnWall.classList.remove("shake-effect"), 200);
+
+                    const percentage = (clicksNeeded / 22) * 100;
+                    hpBar.style.width = `${percentage}%`;
+                    clickText.innerText = `Restam ${clicksNeeded} golpes!`;
+
+                    if (clicksNeeded <= 15) btnWall.innerText = "🧱💥";
+                    if (clicksNeeded <= 6) btnWall.innerText = "💥🪵";
+
+                    if (clicksNeeded <= 0) {
+                        btnWall.innerText = "🔓🌿";
+                        clearInterval(gameState.miniGameInterval);
+                        gameState.score += 200;
+                        endMiniGame(true, "Incrível! Você derrubou os portões da exclusão e garantiu liberdade total para os retirantes famintos! +200 pontos! 🕊️✊");
+                    }
+                };
+
+                gameState.miniGameInterval = setInterval(() => {
+                    secondsLeft--;
+                    timerLabel.innerText = `${secondsLeft}s`;
+                    if (secondsLeft <= 0) {
+                        clearInterval(gameState.miniGameInterval);
+                        if (clicksNeeded > 0) {
+                            endMiniGame(false, "O tempo acabou e os portões continuaram de pé! Mas não desanime, o aprendizado continua! 🧭🎒");
+                        }
+                    }
+                }, 1000);
+
+            } else if (id === 4) {
+                // MINI GAME 4: DANÇA DOS BILROS (Jogo de Memória)
+                title.innerText = "🧵 A Dança dos Bilros!";
+                desc.innerText = "Assista com muita atenção e repita a sequência exata de tecelagem das nossas rendeiras!";
+                stage.innerHTML = `
+                    <div class="w-full flex flex-col items-center justify-center p-2 space-y-4">
+                        <div id="bilro-monitor" class="text-xs font-semibold text-amber-300 font-mono bg-amber-950 px-3 py-2 rounded border border-amber-800 text-center min-w-[200px]">
+                            Aguardando Tecelagem...
+                        </div>
+                        <div class="flex gap-4">
+                            <button id="btn-b1" class="w-14 h-14 rounded-full bg-red-800 hover:bg-red-700 active:scale-95 text-xs font-bold border border-red-600 select-none">Vermelho</button>
+                            <button id="btn-b2" class="w-14 h-14 rounded-full bg-blue-800 hover:bg-blue-700 active:scale-95 text-xs font-bold border border-blue-600 select-none">Azul</button>
+                            <button id="btn-b3" class="w-14 h-14 rounded-full bg-green-800 hover:bg-green-700 active:scale-95 text-xs font-bold border border-green-600 select-none">Verde</button>
+                        </div>
+                    </div>
+                `;
+
+                const monitor = document.getElementById("bilro-monitor");
+                const b1 = document.getElementById("btn-b1");
+                const b2 = document.getElementById("btn-b2");
+                const b3 = document.getElementById("btn-b3");
+
+                const sequence = [
+                    Math.floor(Math.random() * 3) + 1,
+                    Math.floor(Math.random() * 3) + 1,
+                    Math.floor(Math.random() * 3) + 1
+                ];
+
+                const colorNames = { 1: "Vermelho 🔴", 2: "Azul 🔵", 3: "Verde 🟢" };
+                const buttons = { 1: b1, 2: b2, 3: b3 };
+                let userStep = 0;
+                let canInput = false;
+
+                let seqIndex = 0;
+                monitor.innerText = "💡 ASSISTA COM ATENÇÃO:";
+                
+                function playSeq() {
+                    if (seqIndex >= sequence.length) {
+                        monitor.innerText = "👉 REPETIR A SEQUÊNCIA AGORA!";
+                        canInput = true;
+                        return;
+                    }
+                    const num = sequence[seqIndex];
+                    monitor.innerText = `💡 SEQUÊNCIA: [ ${colorNames[num]} ]`;
+                    
+                    synth.play(num * 200, "sine", 0.3, false);
+                    buttons[num].classList.add("scale-110", "brightness-150");
+                    
+                    setTimeout(() => {
+                        buttons[num].classList.remove("scale-110", "brightness-150");
+                        seqIndex++;
+                        setTimeout(playSeq, 400);
+                    }, 400);
+                }
+
+                setTimeout(playSeq, 800);
+
+                function handleInput(choice) {
+                    if (!canInput) return;
+                    synth.play(choice * 200, "sine", 0.15, false);
+
+                    if (choice === sequence[userStep]) {
+                        userStep++;
+                        if (userStep === sequence.length) {
+                            clearInterval(gameState.miniGameInterval);
+                            gameState.score += 250;
+                            endMiniGame(true, "Magnífico! Renda tecida com perfeição absoluta sob o som dos bilros! +250 pontos! 🧵⛱️");
+                        }
+                    } else {
+                        clearInterval(gameState.miniGameInterval);
+                        endMiniGame(false, "Opa! Você errou o ponto da costura! Mas as rendeiras continuam a tecer nossa cultura! 🌊🌴");
+                    }
+                }
+
+                b1.onclick = () => handleInput(1);
+                b2.onclick = () => handleInput(2);
+                b3.onclick = () => handleInput(3);
+
+                gameState.miniGameInterval = setInterval(() => {
+                    secondsLeft--;
+                    timerLabel.innerText = `${secondsLeft}s`;
+                    if (secondsLeft <= 0) {
+                        clearInterval(gameState.miniGameInterval);
+                        endMiniGame(false, "As rendeiras cansaram de esperar! O tempo esgotou! 🧵");
+                    }
+                }, 1000);
+            }
+        }
+
+        function endMiniGame(success, message) {
+            document.getElementById("minigame-timer").innerText = "Fim!";
+            const feedback = document.getElementById("minigame-feedback");
+            feedback.classList.remove("hidden");
+            feedback.innerText = message;
+            feedback.className = `p-3 text-center text-sm font-bold rounded-lg ${success ? 'bg-green-950/80 text-green-300 border border-green-700' : 'bg-red-950/80 text-red-300 border border-red-700'}`;
+            
+            const stage = document.getElementById("minigame-stage");
+            stage.innerHTML = `
+                <div class="flex flex-col items-center justify-center space-y-4 p-4 text-center">
+                    <span class="text-5xl animate-bounce">${success ? '🌟' : '🎒'}</span>
+                    <p class="text-xs md:text-sm text-amber-200 font-semibold leading-relaxed max-w-xs">${message}</p>
+                    <button onclick="resumeQuiz()" class="py-2.5 px-6 bg-amber-500 hover:bg-amber-400 text-amber-950 font-bold font-cordel rounded-xl transition duration-150 transform hover:-translate-y-0.5">
+                        CONTINUAR EXPEDIÇÃO HISTÓRICA ⚔️
+                    </button>
+                </div>
+            `;
+        }
+
+        function resumeQuiz() {
+            synth.playClick();
+            gameState.currentQuestionIndex++;
+            switchScreen("screen-game");
+            loadQuestion();
+        }
+
+        function finishGame() {
+            document.getElementById("end-player-name").innerText = gameState.playerName;
+            document.getElementById("end-score").innerText = gameState.score;
+
+            const badge = document.getElementById("end-badge");
+            const medal = document.getElementById("end-medal-icon");
+            
+            if (gameState.score >= 1500) {
+                badge.innerText = "Lenda da Cearensidade 🌟";
+                badge.className = "font-cordel text-xs md:text-sm text-amber-300 font-bold";
+                medal.innerText = "👑";
+            } else if (gameState.score >= 1000) {
+                badge.innerText = "Sertanejo Resiliente 🌵";
+                badge.className = "font-cordel text-xs md:text-sm text-orange-400 font-bold";
+                medal.innerText = "🏆";
+            } else if (gameState.score >= 500) {
+                badge.innerText = "Romeiro do Saber ⛪";
+                badge.className = "font-cordel text-xs md:text-sm text-yellow-600 font-bold";
+                medal.innerText = "🎖️";
+            } else {
+                badge.innerText = "Iniciante das Veredas 🧭";
+                badge.className = "font-cordel text-xs md:text-sm text-amber-700/80 font-bold";
+                medal.innerText = "🎒";
+            }
+
+            generateSummaryHTML();
+            switchScreen("screen-end");
+        }
+
+        function generateSummaryHTML() {
+            const container = document.getElementById("summary-list");
+            container.innerHTML = "";
+
+            gameState.answersLog.forEach((log, index) => {
+                const div = document.createElement("div");
+                div.className = `p-4 rounded-xl border ${log.isCorrect ? 'border-green-800 bg-green-950/20' : 'border-red-950 bg-red-950/10'} space-y-2`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${log.isCorrect ? 'text-green-400' : 'text-red-400'}">Questão ${index + 1} - ${log.isCorrect ? 'Correto' : 'Incorreto'}</span>
+                        <span class="text-lg">${log.isCorrect ? '🟢' : '🔴'}</span>
+                    </div>
+                    <p class="text-xs md:text-sm font-semibold text-amber-100">${log.questionTitle}</p>
+                    <div class="text-[11px] space-y-1 text-amber-200/80">
+                        <p>Sua resposta: <span class="font-bold text-amber-400">${log.selectedKey.toUpperCase()}</span></p>
+                        <p>Gabarito correto: <span class="font-bold text-green-400">${log.correctKey.toUpperCase()}</span></p>
+                    </div>
+                    <div class="pt-2 border-t border-amber-800/20 text-[11px] text-amber-300 leading-relaxed italic">
+                        <strong>Comentário do Professor:</strong> ${log.explanation}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleSummary() {
+            synth.playClick();
+            const summaryBox = document.getElementById("study-summary");
+            if (summaryBox.classList.contains("hidden")) {
+                summaryBox.classList.remove("hidden");
+                summaryBox.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                summaryBox.classList.add("hidden");
+            }
+        }
+
+        function restartGame() {
+            synth.playClick();
+            document.getElementById("study-summary").classList.add("hidden");
+            switchScreen("screen-start");
+        }
+
+        function openShareModal() {
+            synth.playClick();
+            document.getElementById("modal-share").classList.remove("hidden");
+            // Autocompleta a URL do input com a atual se estiver rodando em algum servidor
+            const input = document.getElementById("qr-input-url");
+            if (window.location.hostname !== "" && window.location.hostname !== "127.0.0.1") {
+                input.value = window.location.href;
+            } else {
+                input.value = "https://github.com";
+            }
+        }
+
+        function closeShareModal() {
+            document.getElementById("modal-share").classList.add("hidden");
+        }
+
+        function generateQRCode() {
+            const urlValue = document.getElementById("qr-input-url").value.trim();
+            if (urlValue === "") return;
+
+            const qrImg = document.getElementById("qr-image");
+            const container = document.getElementById("qr-display-container");
+
+            // Gerador de QR Code através de API Gratuita e Ultrarrápida
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(urlValue)}`;
+            container.classList.remove("hidden");
+            synth.playCorrect();
+        }
+
+        function downloadGameFile() {
+            synth.playClick();
+            // Pega o código-fonte completo da própria página atual (Single File Mandate!)
+            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: "text/html" });
+            
+            // Cria um link temporário oculto para baixar o arquivo HTML offline
+            const tempLink = document.createElement("a");
+            tempLink.href = URL.createObjectURL(blob);
+            tempLink.download = "desafio_rota_da_memoria_ceara.html";
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+        }
+    </script>
+</body>
+</html>
